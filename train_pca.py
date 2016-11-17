@@ -29,9 +29,9 @@ def get_data_batch(selected_files, prev_i, i):
 		# separately for color
 		img = rgb2grey(imread(BASE_PATH + selected_files[x_i])).reshape((1, IMAGE_SIZE[0]*IMAGE_SIZE[1]))
 		X[x_idx,:] = img
-		x_idx += 1
 		galaxy_id = int(selected_files[x_i].split('.')[0])
 		ids.append(galaxy_id)
+		x_idx += 1
 	return X, ids, (x_i+1)
 
 

@@ -3,7 +3,7 @@ import numpy as np
 
 from sklearn.decomposition import IncrementalPCA
 
-NUM_COMP = 25
+NUM_COMP = 125
 
 class MyPCA:
 
