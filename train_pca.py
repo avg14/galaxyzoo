@@ -14,7 +14,7 @@ BATCH_SIZE = 200
 IMAGE_SIZE = (424, 424)
 TRAINED_MODEL_FILENAME = 'trained_model.out'
 TRANSFORMED_DATA_FILENAME = 'transformed_set.out'
-TRANSFORMED_NAMES_FILENAME = 'transformed_names_set.out'
+TRANSFORMED_IDS_FILENAME = 'transformed_id_set.out'
 TRAINING_SIZE = 500
 TESTING_SIZE = 1000
 
@@ -23,15 +23,16 @@ def get_data_batch(selected_files, prev_i, i):
 	X = np.empty((BATCH_SIZE, IMAGE_SIZE[0]*IMAGE_SIZE[1]))
 	x_idx = 0
 	print "Processing:", prev_i, i
-	filenames = []
+	ids = []
 	for x_i in range(prev_i, i):
 		# Converting to grey for first pass - need to evaluate all three channels
 		# separately for color
 		img = rgb2grey(imread(BASE_PATH + selected_files[x_i])).reshape((1, IMAGE_SIZE[0]*IMAGE_SIZE[1]))
 		X[x_idx,:] = img
 		x_idx += 1
-		filenames.append(selected_files[x_i])
-	return X, filenames, (x_i+1)
+		galaxy_id = int(selected_files[x_i].split('.')[0])
+		ids.append(galaxy_id)
+	return X, ids, (x_i+1)
 
 
 def train():
@@ -54,18 +55,18 @@ def transform():
 	m = len(selected_files)
 	prev_i = 0
 	transformed = np.empty((0, NUM_COMP))
-	filenames = []
+	ids = []
 	for i in range(BATCH_SIZE, m+1, BATCH_SIZE):
-		X, batch_filenames, prev_i = get_data_batch(selected_files, prev_i, i)
+		X, batch_ids, prev_i = get_data_batch(selected_files, prev_i, i)
 		transformed = np.vstack([transformed, pca.transform(X)])
-		filenames.extend(batch_filenames)
+		ids.extend(batch_ids)
 
 	with open(TRANSFORMED_DATA_FILENAME, 'w') as f:
 		pickle.dump(transformed, f)
-	with open(TRANSFORMED_NAMES_FILENAME, 'w') as f:
-		pickle.dump(filenames, f)
+	with open(TRANSFORMED_IDS_FILENAME, 'w') as f:
+		pickle.dump(ids, f)
 
 
 if __name__ == '__main__':
-	train()
+	#train()
 	transform()
