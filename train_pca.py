@@ -9,11 +9,12 @@ from mypca import MyPCA, NUM_COMP
 
 
 BASE_PATH = './images_training_rev1/'
-SELECTED_PATH = './selected_files'
+SELECTED_PATH = './selected_files.out'
 BATCH_SIZE = 200
 IMAGE_SIZE = (424, 424)
-TRAINED_MODEL_FILENAME = 'trained_model'
-TRANSFORMED_FILENAME = 'transformed_set'
+TRAINED_MODEL_FILENAME = 'trained_model.out'
+TRANSFORMED_DATA_FILENAME = 'transformed_set.out'
+TRANSFORMED_NAMES_FILENAME = 'transformed_names_set.out'
 TRAINING_SIZE = 500
 TESTING_SIZE = 1000
 
@@ -22,13 +23,15 @@ def get_data_batch(selected_files, prev_i, i):
 	X = np.empty((BATCH_SIZE, IMAGE_SIZE[0]*IMAGE_SIZE[1]))
 	x_idx = 0
 	print "Processing:", prev_i, i
+	filenames = []
 	for x_i in range(prev_i, i):
 		# Converting to grey for first pass - need to evaluate all three channels
 		# separately for color
 		img = rgb2grey(imread(BASE_PATH + selected_files[x_i])).reshape((1, IMAGE_SIZE[0]*IMAGE_SIZE[1]))
 		X[x_idx,:] = img
 		x_idx += 1
-	return X, (x_i+1)
+		filenames.append(selected_files[x_i])
+	return X, filenames, (x_i+1)
 
 
 def train():
@@ -38,7 +41,7 @@ def train():
 	m = len(selected_files)
 	prev_i = 0
 	for i in range(BATCH_SIZE, m+1, BATCH_SIZE):
-		X, prev_i = get_data_batch(selected_files, prev_i, i)
+		X, _, prev_i = get_data_batch(selected_files, prev_i, i)
 		pca.train(X)
 	pca.dump(TRAINED_MODEL_FILENAME)
 
@@ -51,11 +54,16 @@ def transform():
 	m = len(selected_files)
 	prev_i = 0
 	transformed = np.empty((0, NUM_COMP))
+	filenames = []
 	for i in range(BATCH_SIZE, m+1, BATCH_SIZE):
-		X, prev_i = get_data_batch(selected_files, prev_i, i)
+		X, batch_filenames, prev_i = get_data_batch(selected_files, prev_i, i)
 		transformed = np.vstack([transformed, pca.transform(X)])
-	with open(TRANSFORMED_FILENAME, 'w') as f:
+		filenames.extend(batch_filenames)
+
+	with open(TRANSFORMED_DATA_FILENAME, 'w') as f:
 		pickle.dump(transformed, f)
+	with open(TRANSFORMED_NAMES_FILENAME, 'w') as f:
+		pickle.dump(filenames, f)
 
 
 if __name__ == '__main__':
