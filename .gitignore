@@ -1,0 +1,7 @@
+images_training_rev1/
+
+*.pyc
+
+env/
+
+.DS_Store
