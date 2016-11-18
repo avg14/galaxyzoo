@@ -12,13 +12,15 @@ with open('transformed_id_set.out', 'r') as f:
 
 
 for idx in range(0,10):
-	img = color.rgb2grey(io.imread('images_training_rev1/' + str(ids[100 + idx]) + '.jpg'))
+	img = color.rgb2grey(io.imread('images_training_rev1/' + str(ids[idx]) + '.jpg'))
 	subplot(2,10,idx+1)
+	xlabel("original" + str(ids[idx]))
 	imshow(img)
 
 for idx in range(0,10):
-	img = pca.model.inverse_transform(X[100 + idx]).reshape(424, 424)
+	img = pca.model.inverse_transform(X[idx]).reshape(424, 424)
 	subplot(2,10,idx+11)
+	xlabel("pca" + str(ids[idx]))
 	imshow(img)
 
 show()
